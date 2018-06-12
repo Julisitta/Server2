@@ -1,10 +1,12 @@
 const http = require('http');
 const fs = require('fs');
 
-const server = http.createServer(function(request, response) {
+const server = http.createServer((request, response) => {
     let myReadStream = fs.createReadStream(__dirname + '/index.html', 'utf8');
-    myReadStream.pipe(response);
-    if (request.method == 'POST') {
+    if (request.method == 'GET') {
+        myReadStream.pipe(response);
+    }
+    else if (request.method == 'POST') {
         let whole = '';
         request.on('data', (chunk) => {
             whole += chunk.toString();
@@ -17,7 +19,12 @@ const server = http.createServer(function(request, response) {
             });
             console.log(whole);
             response.end('Data received.');
+            server.close();
         })
+    }
+    else {
+        response.writeHead( 400, {'content-type' : 'text/plain'});
+        response.end( 'Try something else.');
     }
 });
 server.listen(3000, () => console.log('Server working'));
