@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+
 const server = http.createServer(function(request, response) {
     let myReadStream = fs.createReadStream(__dirname + '/index.html', 'utf8');
     myReadStream.pipe(response);
@@ -7,12 +8,15 @@ const server = http.createServer(function(request, response) {
         let whole = '';
         request.on('data', (chunk) => {
             whole += chunk.toString();
-            let str = JSON.stringify(whole);
-            fs.writeFileSync('test.txt', str);
         })
         request.on('end', () => {
-            console.log(whole)
-            response.end('Data received.')
+            let str = JSON.stringify(whole);
+            fs.writeFile('test.txt', str, (err) => {
+                if (err) throw err;
+                console.log('The file has been saved!');
+            });
+            console.log(whole);
+            response.end('Data received.');
         })
     }
 });
